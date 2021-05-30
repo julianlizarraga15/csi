@@ -2,7 +2,6 @@ package com.example.myfirstapp;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.solver.Cache;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,34 +18,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.myfirstapp.calculate.NetPresentValue;
+import com.example.myfirstapp.helper.CallWebservice;
+import com.example.myfirstapp.helper.EstimatedInflationAtDate;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
 
-    private TextView tvNetPresentValue, tvDiscount, tvSaving, tvInflacionREM;
+    private TextView tvNetPresentValue, tvDiscount, tvSaving;
+    private TextView tvInflacionREM;
     private EditText montoTotal, cantidadCuotas, inflacionAnual;
     private Button test;
 
@@ -90,42 +73,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-// Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://api.estadisticasbcra.com/inflacion_esperada_oficial";
+        CallWebservice callWebeservice = new CallWebservice("https://api.estadisticasbcra.com/inflacion_esperada_oficial","BEARER eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDc3NTQ0MjksInR5cGUiOiJleHRlcm5hbCIsInVzZXIiOiJqdWxpYW4ubGl6YXJyYWdhLjE1QGdtYWlsLmNvbSJ9.FgtSh24cf6yYA96OFITng0RxeXXshRQKKZsQPtXKZIVGSsFq1qziZjcybFU_BNVJ_P-960skdUTdUvJqRqu35Q");
+        callWebeservice.run();
+        String lastValue = callWebeservice.getResult();
+        tvInflacionREM.setText(lastValue);
 
 
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, url,
-                null, new Response.Listener<JSONObject>() {
-
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    Toast.makeText(MainActivity.this, "ESTO ANDA" + response, Toast.LENGTH_SHORT).show();
-                    tvInflacionREM.setText(response.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "ERROR" + error.getMessage(), Toast.LENGTH_SHORT).show();
-
-
-            }
-        })
-
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Authorization", "BEARER eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDc3NTQ0MjksInR5cGUiOiJleHRlcm5hbCIsInVzZXIiOiJqdWxpYW4ubGl6YXJyYWdhLjE1QGdtYWlsLmNvbSJ9.FgtSh24cf6yYA96OFITng0RxeXXshRQKKZsQPtXKZIVGSsFq1qziZjcybFU_BNVJ_P-960skdUTdUvJqRqu35Q");
-                return headers;
-            }
-         };
-
-       queue.add(req);
     }
 
     public void testButton(View view){
